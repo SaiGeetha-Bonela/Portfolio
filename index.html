@@ -101,14 +101,16 @@
     }
     @media (max-width: 820px){ .about-wrap{ grid-template-columns: 1fr; justify-items:center; } }
     
-    /* NEW PROFILE PHOTO EFFECT */
+    /* NEW PROFILE PHOTO EFFECT (tuned for tight ring + strong halo) */
     .pfp {
       position: relative;
       width: 300px;
       aspect-ratio: 1;
       border-radius: 50%;
-      box-shadow: 0 0 0 4px #00ffe7, 0 0 0 8px #ff00ff;
-      overflow: hidden;
+      overflow: visible; /* allow halo to show */
+      display: inline-block;
+      transform: translateZ(0);
+      transition: transform .35s ease;
     }
     .pfp img {
       width: 100%;
@@ -116,22 +118,48 @@
       object-fit: cover;
       display: block;
       border-radius: 50%;
-      filter: saturate(1.2) contrast(1.1);
+      filter: saturate(1.12) contrast(1.03);
+      box-shadow: inset 0 12px 24px rgba(0,0,0,0.45);
+      z-index: 3;
+      position: relative;
+      transition: transform .45s ease, filter .35s ease;
     }
-    /* The outer glowing border */
+
+    /* strong blurred halo behind the image */
     .pfp::before {
       content: "";
       position: absolute;
-      top: -4px;
-      left: -4px;
-      right: -4px;
-      bottom: -4px;
+      inset: -24px; /* bigger than halo so glow bleeds well outside */
       border-radius: 50%;
-      background: linear-gradient(45deg, #00ffe7, #ff00ff, #00ffe7);
-      z-index: -1;
-      animation: neon-glow 3s ease-in-out infinite;
-      filter: blur(8px);
+      /* stronger mostly-green halo with a tiny magenta tint for depth */
+      background: radial-gradient(circle at 35% 25%, rgba(0,255,231,0.92), rgba(0,255,231,0.36) 28%, rgba(255,0,255,0.06) 55%, transparent 72%);
+      filter: blur(30px);
+      z-index: 1;
+      opacity: 1;
+      transition: filter .35s ease, transform .35s ease, opacity .35s ease;
+      pointer-events:none;
     }
+
+    /* crisp neon stroke that hugs the photo edge (outside the image) */
+    .pfp::after{
+      content: "";
+      position: absolute;
+      inset: -6px; /* sits just outside the image edge so it hugs perfectly */
+      border-radius: 50%;
+      z-index: 2;
+      pointer-events:none;
+      border: 4px solid rgba(0,255,231,0.98);
+      box-shadow: 0 0 10px rgba(0,255,231,0.6), 0 0 30px rgba(0,255,231,0.22), inset 0 0 6px rgba(255,255,255,0.02);
+    }
+
+    /* subtle dark vignette to focus the face */
+    .pfp .vignette{ position:absolute; inset: 8px; border-radius:50%; z-index:3; pointer-events:none; background: radial-gradient(circle, rgba(0,0,0,0) 55%, rgba(0,0,0,0.28) 100%); mix-blend-mode: multiply; }
+
+    /* interactions */
+    .pfp:hover{ transform: translateY(-6px) scale(1.025); }
+    .pfp:hover img{ transform: scale(1.05); filter: saturate(1.18) contrast(1.06); }
+    .pfp:hover::before{ filter: blur(36px); transform: scale(1.04); opacity:1; }
+    .pfp:hover::after{ box-shadow: 0 0 20px rgba(0,255,231,0.75), 0 0 40px rgba(0,255,231,0.25), inset 0 0 8px rgba(255,255,255,0.04); border-color: rgba(0,255,231,1); }
     @keyframes neon-glow {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -165,8 +193,10 @@
       padding: 24px; 
       border-radius:14px; 
       background: var(--card);
-      border:1px solid var(--stroke); 
-      box-shadow: var(--shadow);
+      /* stronger initial border for visibility */
+      border:1px solid rgba(255,255,255,.18); 
+      /* keep existing shadow and add a subtle inset glow for a framed look */
+      box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.02);
       overflow:hidden; 
       transition:.3s transform, .3s border-color;
       min-height: 180px;
@@ -358,11 +388,12 @@
         <div class="about-actions">
           <a class="pill" href="https://github.com/SaiGeetha-Bonela" target="_blank" rel="noopener">💻 GitHub</a>
           <a class="pill" href="https://www.linkedin.com/in/saigeetha-bonela-2092a7291/" target="_blank" rel="noopener">💼 LinkedIn</a>
-          <a class="pill" href="D:\my_webpage\main_webpage_folder.html\B_sai_geetha.pdf" target="_blank" rel="noopener">📄 Check My Resume</a>
+          <a class="pill" href="B_sai_geetha.pdf" target="_blank" rel="noopener">📄 Check My Resume</a>
         </div>
       </div>
       <div class="pfp">
-        <img src="D:\my_webpage\main_webpage_folder.html\pic.jpg" alt="B. Sai Geetha" /> 
+        <img src="pic.jpg" alt="B. Sai Geetha" /> 
+        <span class="vignette" aria-hidden="true"></span>
       </div>
     </div>
   </section>
